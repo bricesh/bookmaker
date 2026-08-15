@@ -50,17 +50,19 @@ export function drawThreads(svg,board){
   svg.innerHTML="";
   if(!s.ui.threadsVisible){ return; }
   const cRect=board.getBoundingClientRect();
+  const gp=board.querySelector(".grid-pane");
+  const gridLeft = gp ? gp.getBoundingClientRect().left - cRect.left : 0; // left edge of the scrolling grid (right of the Cast pane)
   for(const c of s.connections){
     const [a,b,sa,sb]=connEndpoints(c); if(!a||!b) continue;
     const ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
     if((ra.width===0&&ra.height===0)||(rb.width===0&&rb.height===0)) continue; // endpoint hidden (e.g. collapsed attr)
     const p1=anchorPoint(a,sa,cRect), p2=anchorPoint(b,sb,cRect);
-    const dx=Math.max(40,Math.abs(p2.x-p1.x)*0.4);
-    const d=`M ${p1.x} ${p1.y} C ${p1.x+dx} ${p1.y}, ${p2.x-dx} ${p2.y}, ${p2.x} ${p2.y}`;
+    if(p2.x < gridLeft) continue; // target scrolled off to the left, behind the Cast pane → hide (right overflow still shows, clipped at the edge)
+    const d=`M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`; // taut, straight string
     const col=c.type==="attribute-beat"?THREAD_RED:(M.pro(c.fromId)?.color||"#5b655d");
-    // shadow
-    const sh=path(d,col); sh.setAttribute("stroke","rgba(0,0,0,.18)"); sh.setAttribute("stroke-width","3.5"); sh.setAttribute("transform","translate(1.5,2.5)"); svg.append(sh);
-    const pth=path(d,col); pth.dataset.conn=c.id; pth.dataset.from=c.fromId; pth.dataset.to=c.toId;
+    // shadow — the string sits slightly off the board
+    const sh=path(d,col); sh.setAttribute("stroke","rgba(0,0,0,.22)"); sh.setAttribute("stroke-width","3.4"); sh.setAttribute("transform","translate(1,2)"); svg.append(sh);
+    const pth=path(d,col); pth.setAttribute("stroke-width","2.6"); pth.dataset.conn=c.id; pth.dataset.from=c.fromId; pth.dataset.to=c.toId;
     pth.addEventListener("click",(e)=>{e.stopPropagation();editConnection(c);});
     if(c.label){ const t=titleEl(c.label); pth.append(t); }
     svg.append(pth);

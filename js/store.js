@@ -1,38 +1,42 @@
 import { STATUSES, TYPE_COLORS, h, uid } from "./models.js";
 import { confirmDlg, toast } from "./ui.js";
 
-/* === store — state, localStorage autosave, export/import === */
-export const KEY = "storyBoard:v1";
+/* === store — state + cloud sync (Firebase is the single source of truth) === */
 export const listeners = new Set();
-export let saveTimer = null, saveFlagEl = null;
-export function setSaveFlag(el){ saveFlagEl = el; }
+let saveFlagEl = null, localChangeCb = null;
+export function setSaveFlag(el){ saveFlagEl = el; if(saveFlagEl) saveFlagEl.textContent = Store.status; }
+export function setStatus(text){ Store.status = text; if(saveFlagEl) saveFlagEl.textContent = text; }
 
 export const Store = {
   state:null,
-  load(){
-    let raw=null; try{ raw = localStorage.getItem(KEY); }catch{}
-    if(raw){ try{ this.state = migrate(JSON.parse(raw)); return; }catch{} }
-    this.state = seed();
-    this.persist();
-  },
-  persist(){
-    try{ localStorage.setItem(KEY, JSON.stringify(this.state)); flagSaved(); }
-    catch(e){ flagSaved("Storage full — download a backup"); }
-  },
-  /** every mutation goes through here → autosave + re-render */
+  status:"Sign in to save",   // shown in the rail
+  connected:false,             // true when signed in + syncing
+  auth:null,                   // {email} when signed in, else null
+  authActions:null,            // {signIn, signOut} injected by the sync layer when Firebase is available
+  /** start with an empty book in memory; the real book arrives from the cloud on sign-in */
+  init(){ this.state = seed(); },
+  /** every local edit → re-render + push to the cloud (no local storage) */
   mutate(fn){
     fn(this.state);
     this.state.project.updatedAt = new Date().toISOString();
-    if(saveFlagEl) saveFlagEl.textContent = "Saving…";
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(()=>this.persist(), 250);
+    setStatus(this.connected ? "Syncing…" : "Not saved — sign in to save");
     emit();
+    if(localChangeCb) localChangeCb(this.state);
   },
   subscribe(fn){ listeners.add(fn); },
-  replace(doc){ this.state = migrate(doc); this.persist(); emit(); }
+  /** import a backup — replaces everything and pushes to the cloud */
+  replace(doc){ this.state = migrate(doc); emit(); if(localChangeCb) localChangeCb(this.state); },
+  /** adopt a cloud snapshot WITHOUT echoing it back (no localChangeCb) */
+  applyRemote(doc){
+    const inc = migrate(doc);
+    if(JSON.stringify(inc) === JSON.stringify(this.state)) return; // echo of our own write → ignore
+    this.state = inc;
+    emit();
+  },
+  onLocalChange(cb){ localChangeCb = cb; },
+  setAuth(user){ this.auth = user; emit(); }   // re-render rail on sign-in/out
 };
 export function emit(){ for(const fn of listeners) fn(Store.state); }
-export function flagSaved(msg){ if(saveFlagEl) saveFlagEl.textContent = msg || "All changes saved"; }
 
 export function seed(){
   const now = new Date().toISOString();
