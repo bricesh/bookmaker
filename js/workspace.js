@@ -1,6 +1,6 @@
 import { chainsOf, editAttribute, typeTag } from "./characters.js";
 import { editScene, removeScene } from "./config.js";
-import { M, STATUS_META, byOrder, deleteAttribute, deleteBeat, h, move, nextOrder, short, statusOf, uid } from "./models.js";
+import { M, STATUSES, STATUS_META, byOrder, deleteAttribute, deleteBeat, h, move, nextOrder, short, statusOf, uid } from "./models.js";
 import { Store } from "./store.js";
 import { completeLink, drawThreads, highlightFor, path, pin, startLink } from "./threads.js";
 import { closeModal, openModal, toast, toolRow } from "./ui.js";
