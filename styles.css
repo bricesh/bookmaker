@@ -185,7 +185,7 @@ input.txt:focus,textarea.txt:focus,select.txt:focus{outline:none;border-color:va
 .seg button.on{background:var(--ink);color:var(--paper)}
 
 .board{
-  position:relative;overflow:hidden;flex:1;min-height:0;display:flex;align-items:stretch;
+  position:relative;overflow:hidden;flex:1;min-height:0;display:flex;align-items:stretch;isolation:isolate;
   background:
     radial-gradient(circle at 30% 18%, rgba(255,255,255,.06), transparent 62%),
     radial-gradient(circle, rgba(74,86,78,.07) 1px, transparent 1.4px) 0 0/16px 16px,
@@ -193,7 +193,8 @@ input.txt:focus,textarea.txt:focus,select.txt:focus{outline:none;border-color:va
 }
 .cast-pane{flex:none;width:284px;overflow-y:auto;overflow-x:hidden;padding:20px 14px 26px 20px}
 .grid-pane{flex:1;min-width:0;overflow:auto;padding:20px 22px 26px}
-svg.threads{position:absolute;inset:0;pointer-events:none;z-index:5}
+svg.threads{position:absolute;inset:0;pointer-events:none;z-index:-1}   /* default: string behind the cards */
+.board.threads-front svg.threads{z-index:5}                            /* toggled: string over the cards */
 svg.threads path{pointer-events:stroke;cursor:pointer}
 
 /* cast rail */
@@ -392,10 +393,11 @@ svg.threads path{pointer-events:stroke;cursor:pointer}
   .row-tools .btn{padding:8px 12px}
 
   /* modals become bottom sheets */
-  .scrim{align-items:flex-end;padding:0}
-  .modal{max-width:100%;width:100%;border-radius:16px 16px 0 0;border-top:none;max-height:90vh;display:flex;flex-direction:column}
-  .modal-body{overflow-y:auto;flex:1}
-  .modal-foot{position:sticky;bottom:0;background:var(--desk);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .scrim{align-items:flex-end;padding:0;overflow:hidden}
+  .modal{max-width:100%;width:100%;border-radius:16px 16px 0 0;border-top:none;max-height:90vh;max-height:90dvh;display:flex;flex-direction:column;overflow:hidden}
+  .modal-head{flex:none}
+  .modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1 1 auto;min-height:0}
+  .modal-foot{flex:none;background:var(--desk);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
 
   /* ---- paged-scenes board ---- */
   .m-board{display:flex;flex-direction:column;height:calc(100dvh - 48px - 64px)}
