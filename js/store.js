@@ -48,7 +48,7 @@ export function seed(){
     bible:{logline:"",thesis:"",theoryOfChange:"",tonalRules:"",openQuestions:""},
     attributeTypes:types,
     protagonists:[], chapters:[], scenes:[], beats:[], connections:[],
-    ui:{threadsVisible:true, chapterView:"all", activeChapterId:null, biblePinned:false, bibleCollapsed:false, contourVisible:false}
+    ui:{threadsVisible:true, threadsFront:false, chapterView:"all", activeChapterId:null, biblePinned:false, bibleCollapsed:false, contourVisible:false}
   };
 }
 export function migrate(doc){
@@ -56,7 +56,7 @@ export function migrate(doc){
   doc.attributeTypes ??= []; doc.protagonists ??= []; doc.chapters ??= [];
   doc.scenes ??= []; doc.beats ??= []; doc.connections ??= [];
   doc.ui ??= {};
-  doc.ui.threadsVisible ??= true; doc.ui.chapterView ??= "all"; doc.ui.activeChapterId ??= null;
+  doc.ui.threadsVisible ??= true; doc.ui.threadsFront ??= false; doc.ui.chapterView ??= "all"; doc.ui.activeChapterId ??= null;
   doc.ui.biblePinned ??= false; doc.ui.bibleCollapsed ??= false; doc.ui.contourVisible ??= false;
   doc.bible ??= {logline:"",thesis:"",theoryOfChange:"",tonalRules:"",openQuestions:""};
   for(const ch of doc.chapters) ch.castIds ??= [];

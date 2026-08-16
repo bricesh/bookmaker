@@ -34,7 +34,7 @@ export function renderBoard(app){
   view.append(bar);
   if(s.ui.biblePinned) view.append(bibleStrip());
 
-  const board=h(".board");
+  const board=h(".board"+(s.ui.threadsFront?".threads-front":""));
   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"); svg.setAttribute("class","threads");
   board.append(svg);
 

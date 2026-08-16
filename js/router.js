@@ -49,6 +49,7 @@ export function renderRail(){
   if(route==="/board"){
     rail.append(
       h("button.tool"+ (s.ui.threadsVisible?" on":""),{onclick:()=>Store.mutate(st=>st.ui.threadsVisible=!st.ui.threadsVisible)}, "Threads"),
+      h("button.tool"+ (s.ui.threadsFront?" on":""),{onclick:()=>Store.mutate(st=>st.ui.threadsFront=!st.ui.threadsFront),title:"Send string behind or in front of the cards"}, s.ui.threadsFront?"Threads: front":"Threads: back"),
       h("button.tool"+ (s.ui.contourVisible?" on":""),{onclick:()=>Store.mutate(st=>st.ui.contourVisible=!st.ui.contourVisible)}, "Contour"),
       h("button.tool"+ (s.ui.biblePinned?" on":""),{onclick:()=>Store.mutate(st=>st.ui.biblePinned=!st.ui.biblePinned),title:"Pin thesis + tonal rules to the top of the board"}, "Pin bible")
     );
