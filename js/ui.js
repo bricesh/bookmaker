@@ -28,7 +28,10 @@ export function openModal({eyebrow,title,body,saveLabel="Save",onSave,extraFoot}
   scrim.addEventListener("mousedown",(e)=>{ downOnScrim = (e.target===scrim); });
   scrim.addEventListener("click",(e)=>{ if(e.target===scrim && downOnScrim) closeModal(); });
   document.addEventListener("keydown",function onKey(e){ if(e.key==="Escape"){closeModal();document.removeEventListener("keydown",onKey);} });
-  const first = scrim.querySelector("input,textarea,select"); if(first) first.focus();
+  // don't auto-focus on phones: it pops the keyboard and pushes the top of the sheet off-screen
+  if(!window.matchMedia("(max-width: 768px)").matches){
+    const first = scrim.querySelector("input,textarea,select"); if(first) first.focus();
+  }
 }
 export function confirmDlg(title,msg,yes="Delete"){
   return new Promise(res=>{
